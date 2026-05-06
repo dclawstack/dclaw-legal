@@ -1,0 +1,5 @@
+apiVersion: v2
+name: dclaw-legal
+description: "DClaw Legal — AI contract review & case law research"
+version: 0.1.0
+appVersion: 0.1.0
