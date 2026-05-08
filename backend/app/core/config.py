@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_legal"
     redis_url: str = "redis://localhost:6379/0"
     ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1"
+    openrouter_api_key: str = ""
+    cors_origins: str = "http://localhost:3013,http://localhost:3000"
 
 
 settings = Settings()

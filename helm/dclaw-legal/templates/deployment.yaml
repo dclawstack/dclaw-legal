@@ -23,5 +23,33 @@ spec:
             - name: http
               containerPort: 8099
               protocol: TCP
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dclaw-legal.fullname" . }}-secrets
+                  key: database_url
+            - name: OLLAMA_BASE_URL
+              value: "{{ .Values.ollama.baseUrl }}"
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "dclaw-legal.fullname" . }}-secrets
+                  key: openrouter_api_key
+                  optional: true
+            - name: CORS_ORIGINS
+              value: "https://{{ .Values.ingress.host }}"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

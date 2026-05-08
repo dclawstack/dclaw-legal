@@ -22,6 +22,13 @@ resources:
     cpu: 100m
     memory: 128Mi
 
+secrets:
+  databaseUrl: "postgresql+asyncpg://legal:legal@postgres:5432/dclaw_legal"
+  openrouterApiKey: ""
+
+ollama:
+  baseUrl: "http://ollama:11434"
+
 postgresql:
   enabled: true
   storage: 10Gi
