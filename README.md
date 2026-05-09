@@ -150,6 +150,12 @@ helm upgrade --install dclaw-legal . \
 
 ---
 
+## Contributors
+
+- Mahesh
+
+---
+
 ## License
 
 MIT
