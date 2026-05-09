@@ -1,110 +1,99 @@
 # DClaw Legal — v1.2 Feature Roadmap
 
-> **For coding agents:** Pick features from this list, implement them fully, and update this doc with a checkmark.
-> **Do NOT change the basic stack.** See `AGENTS.md` for architecture lock.
+> Based on: Y Combinator vertical SaaS principles, trending GitHub repos (legal-document-manager), AI product research (Harvey, Lexion, Ironclad, SpotDraft)
 
-## Pre-Flight Checklist — Do This First
+## Pre-Flight Checklist
 
-Before implementing any v1.2 feature, verify:
-
-- [ ] `frontend/package-lock.json` is committed after any `npm install` / dependency change
-- [ ] `frontend/next-env.d.ts` exists and is committed (required for Next.js TypeScript builds)
-- [ ] `frontend/.gitignore` excludes `node_modules/` and `.next/`
-- [ ] `docker-compose.yml` healthchecks use `python urllib.request.urlopen()` (backend) and `wget -q --spider` (frontend)
+- [ ] `frontend/package-lock.json` committed after any `npm install` / dependency change
+- [ ] `frontend/next-env.d.ts` exists and is committed
+- [ ] `docker-compose.yml` healthchecks correct
 - [ ] `frontend/Dockerfile` declares `ARG NEXT_PUBLIC_API_URL` before `RUN npm run build`
 
 ## v1.0 Feature Inventory (Current)
 
-- [x] Contract review with AI analysis
-- [x] Risk score calculation (0-100)
-- [x] Clause detection with risk levels
-- [x] Recommendations per clause
-- [x] Review history sidebar
-- [x] Real backend CRUD (no mocks)
-- [x] Ollama/OpenRouter/keyword fallback analysis
-- [x] Docker + Helm deployment
-- [x] Alembic migrations
-- [x] Backend tests
+- [ ] Matter/case management
+- [ ] Document storage & version control
+- [ ] Contact management (clients, opposing counsel)
+- [ ] Time tracking & billing
+- [ ] Real backend CRUD (no mocks)
+- [ ] Docker + Helm deployment
+- [ ] Alembic migrations
+- [ ] Backend tests
 
 ---
 
 ## v1.2 Roadmap
 
-### P0 — Must Have
+### P0 — Must Have (Ship in v1.0, demo-ready)
 
-#### 1. Document Templates
-**Description:** Pre-defined contract templates (NDA, MSA, SOW, Employment Agreement) that users can fill in and review.
-- **Backend:** Add `DocumentTemplate` model (`id`, `name`, `category`, `template_text`, `variables` JSON). Add `POST /api/v1/templates/{id}/generate` that accepts variable values and returns filled contract text.
-- **Frontend:** Template gallery page. Form builder from template variables. Generate → Review workflow.
-- **Files to touch:** `backend/app/models/document_template.py`, `backend/app/repositories/template_repo.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/templates/page.tsx`
+#### 1. AI Legal Copilot (Document Analyst)
+**Description:** AI assistant that reads contracts, identifies risks, answers legal questions, and suggests clauses. "What are the termination risks in this agreement?"
+- **AI Angle:** Contract parsing (LLM). Risk classification. RAG over legal knowledge base.
+- **Backend:** `/api/v1/ai/legal-chat` endpoint. Document analysis pipeline.
+- **Frontend:** AI sidebar in document viewer. Highlighted risk annotations.
+- **Files:** `backend/app/services/legal_ai.py`, `frontend/src/components/legal-copilot.tsx`
 
-#### 2. E-Signature Integration (DocuSign API)
-**Description:** Send reviewed contracts for signature via DocuSign.
-- **Backend:** Integrate DocuSign eSignature REST API. Store `envelope_id`, `signer_email`, `status` in `ContractReview`. Webhook handler for status updates.
-- **Frontend:** "Send for Signature" button after review. Status tracking (sent, delivered, signed, declined).
-- **Files to touch:** `backend/app/services/docusign_service.py`, `backend/app/api/v1/legal/signatures.py`, `frontend/src/app/dashboard/SignaturePanel.tsx`
+#### 2. Contract Review & Risk Scoring
+**Description:** Upload contracts. AI extracts key terms, flags risks, compares to company playbook.
+- **AI Angle:** Clause extraction + risk scoring against precedent database.
+- **Backend:** `/api/v1/ai/analyze-contract` endpoint.
+- **Frontend:** Contract upload → analysis report with risk heatmap.
+- **Files:** `backend/app/services/contract_analyzer.py`
 
-#### 3. Contract Comparison (Redlining / Diff)
-**Description:** Compare two versions of a contract side-by-side with highlighted differences.
-- **Backend:** Use `difflib` or Google `diff-match-patch` to compute line-level diffs. `POST /api/v1/legal/compare` accepts two texts, returns diff blocks.
-- **Frontend:** Side-by-side diff viewer with green (added), red (removed), yellow (modified) highlights.
-- **Files to touch:** `backend/app/services/diff_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/compare/page.tsx`
+#### 3. Matter Management & Workflow
+**Description:** Track cases/matters with stages, deadlines, tasks, and document associations.
+- **Backend:** Matter lifecycle workflow. Deadline reminders.
+- **Frontend:** Matter board (Kanban). Calendar view of deadlines.
+- **Files:** `backend/app/services/matters.py`
 
-#### 4. Batch Document Processing
-**Description:** Upload multiple contracts at once and review them all.
-- **Backend:** `POST /api/v1/legal/batch` accepts ZIP or multiple files. Queue processing with background tasks (Celery or asyncio tasks). Store batch job status.
-- **Frontend:** Drag-and-drop multi-file upload. Progress bar. Results table with batch overview.
-- **Files to touch:** `backend/app/services/batch_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/batch/page.tsx`
+#### 4. Time Tracking & Invoicing
+**Description:** Track billable hours by matter. Generate invoices with rate cards. UTBMS coding.
+- **Backend:** Timer + manual entry. Invoice generation.
+- **Frontend:** Time entry widget. Invoice preview.
+- **Files:** `backend/app/services/billing.py`
 
-### P1 — Should Have
+### P1 — Should Have (v1.1–1.2)
 
-#### 5. Party Extraction
-**Description:** Automatically identify all parties (companies, individuals) mentioned in a contract.
-- **Backend:** Use LLM prompt: "Extract all parties from this contract. Return JSON with name, role, and address." Store in `ContractParty` model.
-- **Frontend:** Party list panel in review results. Click to highlight mentions in original text.
-- **Files to touch:** `backend/app/models/contract_party.py`, `backend/app/services/party_extraction_service.py`, `frontend/src/app/dashboard/PartiesPanel.tsx`
+#### 5. Clause Library & Playbook
+**Description:** Curated clause library with fallback positions. AI suggests clauses based on contract type.
+- **Backend:** Clause database with versioning. Playbook rules engine.
+- **Frontend:** Clause browser. Drag-and-drop into contract editor.
 
-#### 6. Compliance Checklists
-**Description:** Run contract against regulatory frameworks (GDPR, SOC2, HIPAA, CCPA).
-- **Backend:** Pre-defined checklists with required clauses. `POST /api/v1/legal/compliance-check` returns pass/fail per checklist item with missing clauses.
-- **Frontend:** Compliance badge on review. Detailed checklist view.
-- **Files to touch:** `backend/app/services/compliance_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/dashboard/CompliancePanel.tsx`
+#### 6. E-Signature & Approval Workflow
+**Description:** Route documents for internal and external approval. E-signature (DocuSign/HelloSign).
+- **Backend:** Approval chain engine. E-sign webhook handling.
+- **Frontend:** Approval workflow designer. Signature status tracker.
 
-#### 7. Export to Word / PDF
-**Description:** Download reviewed contracts as formatted Word or PDF documents.
-- **Backend:** Use `python-docx` for Word, `weasyprint` or `pdfkit` for PDF. Include review annotations as comments/side notes.
-- **Frontend:** Export dropdown (Word, PDF, Markdown) in review results.
-- **Files to touch:** `backend/app/services/export_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/dashboard/ExportButton.tsx`
+#### 7. Legal Research & Case Law
+**Description:** Search case law, statutes, and regulations. AI summarizes relevant precedents.
+- **AI Angle:** Case law search + LLM summarization.
+- **Backend:** Legal search API integration.
+- **Frontend:** Research workspace with AI summaries.
 
-#### 8. Case Law Search
-**Description:** Search relevant case law based on contract clauses.
-- **Backend:** Integrate with CourtListener API or similar. `GET /api/v1/legal/case-law?q=query`.
-- **Frontend:** "Related Cases" section in review results. Citation cards.
-- **Files to touch:** `backend/app/services/case_law_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/dashboard/CaseLawPanel.tsx`
+#### 8. Regulatory Compliance Tracker
+**Description:** Track compliance deadlines, filing requirements, and regulatory changes.
+- **Backend:** Regulatory event monitoring. Deadline alerts.
+- **Frontend:** Compliance calendar. Risk register.
 
-### P2 — Could Have
+### P2 — Could Have (v1.3+)
 
-#### 9. Contract Negotiation Playbook
-**Description:** AI-generated negotiation strategy based on contract terms.
-- **Backend:** LLM prompt for negotiation tips per clause. Store in `NegotiationTip` model.
-- **Frontend:** "Negotiate" tab with bullet-point strategies.
+#### 9. AI Contract Drafting
+**Description:** Generate first-draft contracts from briefs and templates.
 
-#### 10. Third-Party Risk Assessment
-**Description:** Assess counterparty risk using public data (credit ratings, litigation history).
-- **Backend:** Integrate with business intelligence APIs (e.g., Clearbit, OpenCorporates).
-- **Frontend:** Risk badge next to each detected party.
+#### 10. Litigation Analytics
+**Description:** Predict case outcomes based on judge, jurisdiction, and case type.
+
+#### 11. IP Portfolio Management
+**Description:** Track trademarks, patents, and filings with deadline management.
+
+#### 12. Client Portal
+**Description:** Secure client-facing portal for document sharing and matter updates.
 
 ---
 
 ## Implementation Priority
 
-1. Document Templates (productivity)
-2. Contract Comparison (core legal workflow)
-3. Batch Document Processing (scalability)
-4. E-Signature Integration (workflow completion)
-5. Party Extraction (data enrichment)
-6. Compliance Checklists (regulatory value)
-7. Export to Word/PDF (output flexibility)
-8. Case Law Search (legal research)
-9. Contract Negotiation Playbook (advanced AI)
-10. Third-Party Risk Assessment (enterprise)
+1. **Week 1–2:** AI Legal Copilot (P0.1) + Contract Review (P0.2)
+2. **Week 3–4:** Matter Management (P0.3) + Time Tracking (P0.4)
+3. **Week 5–6:** Clause Library (P1.5) + E-Signature (P1.6)
+4. **Week 7–8:** Legal Research (P1.7) + Compliance Tracker (P1.8)
