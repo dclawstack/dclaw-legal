@@ -61,6 +61,35 @@ class ContractReviewRepository:
         await self.db.delete(review)
         await self.db.commit()
 
+    async def update_signature(
+        self,
+        review: ContractReview,
+        *,
+        envelope_id: str,
+        signer_email: str,
+        signature_status: str,
+    ) -> ContractReview:
+        review.envelope_id = envelope_id
+        review.signer_email = signer_email
+        review.signature_status = signature_status
+        await self.db.commit()
+        await self.db.refresh(review)
+        return review
+
+    async def get_by_envelope(self, envelope_id: str) -> ContractReview | None:
+        result = await self.db.execute(
+            select(ContractReview).where(ContractReview.envelope_id == envelope_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def update_signature_status(
+        self, review: ContractReview, signature_status: str
+    ) -> ContractReview:
+        review.signature_status = signature_status
+        await self.db.commit()
+        await self.db.refresh(review)
+        return review
+
 
 class ClauseFindingRepository:
     """Clause finding data access repository."""

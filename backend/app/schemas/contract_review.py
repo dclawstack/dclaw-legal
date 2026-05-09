@@ -50,6 +50,9 @@ class ContractReviewResponse(ContractReviewBase):
     id: UUID
     risk_score: int
     status: str
+    envelope_id: str | None = None
+    signer_email: str | None = None
+    signature_status: str | None = None
     findings: list[ClauseFindingResponse] = []
     created_at: str
     updated_at: str

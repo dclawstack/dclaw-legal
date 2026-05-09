@@ -12,5 +12,10 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     cors_origins: str = "http://localhost:3013,http://localhost:3000"
 
+    docusign_base_url: str = "https://demo.docusign.net/restapi"
+    docusign_account_id: str = ""
+    docusign_access_token: str = ""
+    docusign_webhook_secret: str = ""
+
 
 settings = Settings()

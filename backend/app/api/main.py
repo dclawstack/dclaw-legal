@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health
-from app.api.v1 import legal
+from app.api.v1 import legal, signatures, templates
 from app.core.config import settings
 
 
@@ -33,6 +33,8 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router, tags=["health"])
     app.include_router(legal.router, prefix="/api/v1", tags=["legal"])
+    app.include_router(templates.router, prefix="/api/v1", tags=["templates"])
+    app.include_router(signatures.router, prefix="/api/v1", tags=["signatures"])
 
     return app
 
