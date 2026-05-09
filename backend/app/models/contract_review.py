@@ -21,6 +21,10 @@ class ContractReview(Base, UUIDMixin, TimestampMixin):
         String(50), nullable=False, default="pending"
     )
 
+    envelope_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    signer_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    signature_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
     findings: Mapped[list["ClauseFinding"]] = relationship(
         "ClauseFinding", back_populates="contract_review", lazy="selectin", cascade="all, delete-orphan"
     )

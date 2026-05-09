@@ -32,25 +32,25 @@ Before implementing any v1.2 feature, verify:
 
 ### P0 — Must Have
 
-#### 1. Document Templates
+#### 1. Document Templates ✅
 **Description:** Pre-defined contract templates (NDA, MSA, SOW, Employment Agreement) that users can fill in and review.
 - **Backend:** Add `DocumentTemplate` model (`id`, `name`, `category`, `template_text`, `variables` JSON). Add `POST /api/v1/templates/{id}/generate` that accepts variable values and returns filled contract text.
 - **Frontend:** Template gallery page. Form builder from template variables. Generate → Review workflow.
 - **Files to touch:** `backend/app/models/document_template.py`, `backend/app/repositories/template_repo.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/templates/page.tsx`
 
-#### 2. E-Signature Integration (DocuSign API)
+#### 2. E-Signature Integration (DocuSign API) ✅
 **Description:** Send reviewed contracts for signature via DocuSign.
 - **Backend:** Integrate DocuSign eSignature REST API. Store `envelope_id`, `signer_email`, `status` in `ContractReview`. Webhook handler for status updates.
 - **Frontend:** "Send for Signature" button after review. Status tracking (sent, delivered, signed, declined).
 - **Files to touch:** `backend/app/services/docusign_service.py`, `backend/app/api/v1/legal/signatures.py`, `frontend/src/app/dashboard/SignaturePanel.tsx`
 
-#### 3. Contract Comparison (Redlining / Diff)
+#### 3. Contract Comparison (Redlining / Diff) ✅
 **Description:** Compare two versions of a contract side-by-side with highlighted differences.
 - **Backend:** Use `difflib` or Google `diff-match-patch` to compute line-level diffs. `POST /api/v1/legal/compare` accepts two texts, returns diff blocks.
 - **Frontend:** Side-by-side diff viewer with green (added), red (removed), yellow (modified) highlights.
 - **Files to touch:** `backend/app/services/diff_service.py`, `backend/app/api/v1/legal.py`, `frontend/src/app/compare/page.tsx`
 
-#### 4. Batch Document Processing
+#### 4. Batch Document Processing ✅
 **Description:** Upload multiple contracts at once and review them all.
 - **Backend:** `POST /api/v1/legal/batch` accepts ZIP or multiple files. Queue processing with background tasks (Celery or asyncio tasks). Store batch job status.
 - **Frontend:** Drag-and-drop multi-file upload. Progress bar. Results table with batch overview.

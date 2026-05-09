@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Scale, Trash2, Loader2 } from "lucide-react";
 import { listReviews, createReview, deleteReview, type ContractReview } from "@/lib/api";
 import { toast } from "sonner";
+import { SignaturePanel } from "./SignaturePanel";
 
 export default function Dashboard() {
   const [contractText, setContractText] = useState("");
@@ -73,6 +74,11 @@ export default function Dashboard() {
       <header className="bg-[#1E3A5F] px-6 py-4 flex items-center gap-3">
         <Scale className="h-6 w-6 text-white" />
         <h1 className="text-xl font-semibold text-white">DClaw Legal</h1>
+        <nav className="ml-auto flex items-center gap-4 text-sm text-white/80">
+          <a href="/templates" className="hover:text-white">Templates</a>
+          <a href="/compare" className="hover:text-white">Compare</a>
+          <a href="/batch" className="hover:text-white">Batch</a>
+        </nav>
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -179,6 +185,16 @@ export default function Dashboard() {
                   )}
                 </ul>
               </div>
+
+              <SignaturePanel
+                review={selectedReview}
+                onUpdated={(next) => {
+                  setSelectedReview(next);
+                  setReviews((prev) =>
+                    prev.map((r) => (r.id === next.id ? next : r)),
+                  );
+                }}
+              />
             </div>
           )}
         </div>
